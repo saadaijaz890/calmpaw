@@ -10,7 +10,16 @@
       "Bash(python3:*)",
       "Bash(xargs sed:*)",
       "Bash(git:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:www.reddit.com)",
+      "WebFetch(domain:www.anxietyfreepups.com)",
+      "WebSearch",
+      "WebFetch(domain:www.barkbusters.com)",
+      "WebFetch(domain:www.quora.com)",
+      "WebFetch(domain:meetglimpse.com)",
+      "WebFetch(domain:puptalk.co.uk)",
+      "WebFetch(domain:theprogress.com)",
+      "WebFetch(domain:www.newsweek.com)"
     ]
   }
 }
