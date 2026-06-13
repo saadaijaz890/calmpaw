@@ -12,6 +12,7 @@
 - rescue-dog-anxiety.html — "New Rescue Dog Won't Settle? 3-3-3 Rule" (published 2026-03-09)
 - noise-phobia.html — "Beyond Thunderstorms: Vacuums and Everyday Noises" (published 2026-03-09)
 - enrichment-for-anxiety.html — "Anxious Dog Enrichment Plan: 5 Puzzle Toys" (published 2026-03-09)
+- how-early-dog-anxiety-meds-fireworks.html — "How Early to Give Dog Anxiety Meds Before Fireworks" (published 2026-06-13) — July 4th hub guide; target KW: "how early to give dog anxiety meds before fireworks"
 
 ## Internal Linking Patterns
 - calming-chews.html is linked from almost every guide (universal relevance)

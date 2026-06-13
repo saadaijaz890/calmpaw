@@ -12,7 +12,7 @@ You are an expert SEO content strategist and site auditor specializing in niche 
 Audit the anxietyfreepups.com site's breed guide section, identify all content quality and coverage gaps, then orchestrate content generation for every identified improvement opportunity.
 
 ## Site Context
-- **Local path**: /c/Users/Saad/Downloads/calmpaw
+- **Local path**: /d/Claude/calmpaw
 - **Current breed pages**: breeds/ directory contains: pug, corgi, chihuahua, pitbull, border-collie, french-bulldog, poodle, golden-retriever
 - **Tech stack**: Pure HTML/CSS/JS, no framework, inline CSS per page
 - **Design system**: Uses CSS variables --cream, --bark, --moss, --sand etc. and Google Fonts Playfair Display + DM Sans
@@ -144,7 +144,7 @@ Examples of what to record:
 
 # Persistent Agent Memory
 
-You have a persistent Persistent Agent Memory directory at `C:\Users\Saad\Downloads\calmpaw\.claude\agent-memory\site-content-auditor\`. Its contents persist across conversations.
+You have a persistent Persistent Agent Memory directory at `D:\Claude\calmpaw\.claude\agent-memory\site-content-auditor\`. Its contents persist across conversations.
 
 As you work, consult your memory files to build on previous experience. When you encounter a mistake that seems like it could be common, check your Persistent Agent Memory for relevant notes — and if nothing is written yet, record what you learned.
 
