@@ -2,7 +2,7 @@
 
 ## Breed Page Quality Tiers (confirmed March 2026)
 
-### Generation 1 — Critical/thin (corgi, chihuahua, pitbull, french-bulldog)
+### Generation 1 — Critical/thin (corgi, chihuahua, pitbull)
 - ~300-350 words of actual body content
 - Identical boilerplate: "Their natural temperament and breed history make them particularly sensitive to stress triggers. Understanding the root cause is the first step to solving it."
 - Identical tip box: "[Breed]-specific anxiety often responds best to a combination of pressure therapy (Thundershirt) and calming supplements. Single-product solutions rarely work for this breed."
@@ -75,6 +75,9 @@ HIGH PRIORITY (done): german-shepherd, labrador-retriever, dachshund, beagle, au
 MEDIUM PRIORITY (done): yorkshire-terrier, cavalier-king-charles-spaniel, doberman, weimaraner
 
 ## Remaining Content Action Items (not yet done)
-- REWRITE: corgi, chihuahua, pitbull, french-bulldog (all Gen1 → Gen2)
+- REWRITE: corgi, chihuahua, pitbull (all Gen1 → Gen2)
 - EXPAND: pug (Gen1.5 → Gen2 — add FAQ, FAQPage schema, ImageObject, warning-box, training section)
 - ADD: new pages to sitemap.xml (10 new breed pages created this session)
+
+## Gen1 → Gen2 Rewrites Completed
+- french-bulldog — rewritten 2026-06-13; ~2,050 words body content; hero gradient #F5E6D3; all Gen2 standards met
