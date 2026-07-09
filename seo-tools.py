@@ -17,6 +17,16 @@ NOW = datetime.utcnow().strftime("%Y-%m-%d")
 
 # --- Page discovery ---
 
+def clean_url_for(rel):
+    """Map a relative .html file path to the site's canonical clean URL
+    (matches the <link rel="canonical"> convention already used across the site:
+    no .html extension, and dir/index.html collapses to dir/)."""
+    if rel == "index.html":
+        return f"{SITE}/"
+    if rel.endswith("/index.html"):
+        return f"{SITE}/{rel[:-len('index.html')]}"
+    return f"{SITE}/{rel[:-len('.html')]}"
+
 def discover_pages():
     """Scan the repo for all HTML files."""
     pages = []
@@ -28,7 +38,7 @@ def discover_pages():
             if fn.endswith(".html"):
                 full = os.path.join(dirpath, fn)
                 rel = os.path.relpath(full, ROOT).replace("\\", "/")
-                url = f"{SITE}/{rel}" if rel != "index.html" else f"{SITE}/"
+                url = clean_url_for(rel)
                 pages.append((full, rel, url))
     return pages
 
@@ -90,7 +100,8 @@ def generate_blog_index(pages):
         slug = rel.replace(".html", "").split("/")[-1]
         # Generate a nice image URL based on the article topic
         img_seed = slug.replace("-", "-")
-        cards.append(f'''    <a href="/{rel}" class="article-card">
+        clean_path = url[len(SITE):]
+        cards.append(f'''    <a href="{clean_path}" class="article-card">
       <div class="card-body">
         <span class="card-tag">Blog</span>
         <h3>{title}</h3>
@@ -356,7 +367,8 @@ def add_related_posts(pages):
         
         for score, url, title, other_rel in top3:
             display_title = re.sub(r'\s*[—|–|-]\s*AnxietyFreePups.*$', '', title).strip().title()
-            related_html += f'    <a href="/{other_rel}" style="background:var(--warm-white);border:1px solid var(--sand-light);border-radius:12px;padding:1rem;text-decoration:none;color:inherit;transition:all .2s" '
+            clean_path = url[len(SITE):]
+            related_html += f'    <a href="{clean_path}" style="background:var(--warm-white);border:1px solid var(--sand-light);border-radius:12px;padding:1rem;text-decoration:none;color:inherit;transition:all .2s" '
             related_html += f'onmouseover="this.style.borderColor=\'var(--moss-light)\';this.style.transform=\'translateY(-2px)\'" '
             related_html += f'onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'
             related_html += f'      <h4 style="font-size:.95rem;font-weight:600;color:var(--bark);margin-bottom:.3rem">{display_title}</h4>\n'
