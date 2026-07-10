@@ -47,3 +47,14 @@ prose — it goes stale.**
 - 2026-06-13: Blog count (82) exceeds guide count (27) by 3x — content mix is blog-heavy. Prioritize guide-tier authority pieces next.
 - 2026-06-13: Medication coverage is thin (3 guides) vs. clear search demand — most promising unbuilt cluster.
 - 2026-07-09: Root-cause traffic bottleneck was technical (sitemap submitting non-canonical URLs, ~127/159 pages showing 0 indexed), not primarily a content-quality problem. Fixed. Re-evaluate whether Gen1 rewrites are still the top lever once indexed count recovers over the next 1-2 weeks, or whether it was mostly a crawl/indexing ceiling all along.
+
+## 2026-07-10: Free-model OpenRouter setup
+New OPENROUTER_API_KEY saved to .env (owner-provided, for blog generation only).
+content-agent.py now uses a free-model-only list (nvidia/tencent/poolside/cohere
+:free variants), auto-validated against OpenRouter's catalog once/day, with fallback
+across the list and auto-discovery of new free models. Still blocked in THIS cloud
+environment by the network egress policy (openrouter.ai returns 403 at the proxy
+CONNECT level, confirmed via raw curl — not a credits/key/model issue). Will work
+as soon as openrouter.ai is allowlisted for this environment, or if run locally.
+Do not revert to the old hardcoded "deepseek/deepseek-v4-flash" model — blog
+generation must stay free-tier-only per owner instruction.
