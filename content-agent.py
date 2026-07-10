@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Content Agent for CalmPaw / AnxietyFreePups
-Uses OpenRouter + DeepSeek Flash V4 to auto-generate SEO-optimized blog posts
-Cost: ~$0.01-0.05 per article with DeepSeek Flash V4
+Uses OpenRouter (free-tier models only, auto-validated daily) to auto-generate
+SEO-optimized blog posts. Cost: $0 — falls through the free-model list until one succeeds.
 
 Usage:
   python content-agent.py                          # Generate 1 article
@@ -29,6 +29,70 @@ OUTPUT_DIR = ROOT / "blogs"
 
 # Amazon affiliate tag
 AMZ_TAG = "anxietyfreepups-20"
+
+# === FREE MODEL SELECTION ===
+# Blog generation only uses free OpenRouter models. This list is seeded manually and
+# auto-expanded/validated at most once per day against OpenRouter's live catalog —
+# any model here that no longer exists or no longer has ":free" pricing is dropped,
+# and any other currently-free model OpenRouter now offers gets appended.
+FREE_MODEL_SEED = [
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3.5-content-safety:free",
+    "nvidia/llama-nemotron-rerank-vl-1b-v2:free",
+    "tencent/hy3:free",
+    "poolside/laguna-xs-2.1:free",
+    "cohere/north-mini-code:free",
+]
+MODEL_CACHE_FILE = ROOT / ".free_model_cache.json"
+
+def get_free_models():
+    """Return today's validated list of free OpenRouter models, refreshing at most
+    once/day. Falls back to the raw seed list (unvalidated) if the catalog can't be
+    reached — the actual completion call still checks for a live 'error' response
+    and moves to the next model, so a stale/dead entry here just costs one retry."""
+    import json as _json
+    from datetime import datetime as _dt
+
+    if MODEL_CACHE_FILE.exists():
+        try:
+            cache = _json.loads(MODEL_CACHE_FILE.read_text())
+            cached_date = cache.get("date", "")
+            if cached_date == _dt.utcnow().strftime("%Y-%m-%d") and cache.get("models"):
+                return cache["models"]
+        except Exception:
+            pass
+
+    validated = list(FREE_MODEL_SEED)
+    try:
+        import requests
+        resp = requests.get("https://openrouter.ai/api/v1/models", timeout=20)
+        resp.raise_for_status()
+        catalog = resp.json().get("data", [])
+        live_free_ids = {m["id"] for m in catalog if m.get("id", "").endswith(":free")}
+
+        # Drop seed entries that no longer exist / are no longer free.
+        validated = [m for m in FREE_MODEL_SEED if m in live_free_ids]
+
+        # Discover any other currently-free models not already in our list.
+        for model_id in sorted(live_free_ids):
+            if model_id not in validated:
+                validated.append(model_id)
+
+        if not validated:
+            validated = list(FREE_MODEL_SEED)
+    except Exception as e:
+        print(f"   ⚠️  Could not refresh free-model list from OpenRouter ({e}) — using cached/seed list")
+
+    try:
+        MODEL_CACHE_FILE.write_text(_json.dumps({
+            "date": _dt.utcnow().strftime("%Y-%m-%d"),
+            "models": validated,
+        }, indent=2))
+    except Exception:
+        pass
+
+    return validated
 
 # === API SETUP ===
 
@@ -389,7 +453,7 @@ def get_article_template(title, description, body_html, slug, category):
 # === AI Content Generator ===
 
 def generate_article(topic_title, category):
-    """Use DeepSeek Flash V4 via OpenRouter to generate article content."""
+    """Use a free OpenRouter model (with automatic fallback) to generate article content."""
     slug = generate_slug(topic_title)
     
     print(f"🤖 Generating: {topic_title}")
@@ -438,34 +502,44 @@ Requirements:
 
     try:
         import requests
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {API_KEY}",
-                "Content-Type": "application/json",
-                "HTTP-Referer": SITE_URL,
-                "X-Title": SITE_NAME,
-            },
-            json={
-                "model": "deepseek/deepseek-v4-flash",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                "temperature": 0.7,
-                "max_tokens": 8000,
-            },
-            timeout=120
-        )
-        
-        data = response.json()
-        
-        # Check for errors
-        if "error" in data:
-            error_msg = data["error"].get("message", str(data["error"]))
-            print(f"   ❌ API Error: {error_msg}")
+        free_models = get_free_models()
+        data = None
+        last_error = None
+        for model_id in free_models:
+            if ":free" not in model_id:
+                continue  # never spend on a paid model for blog generation
+            response = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {API_KEY}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": SITE_URL,
+                    "X-Title": SITE_NAME,
+                },
+                json={
+                    "model": model_id,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    "temperature": 0.7,
+                    "max_tokens": 8000,
+                },
+                timeout=120
+            )
+            candidate = response.json()
+            if "error" in candidate:
+                last_error = candidate["error"].get("message", str(candidate["error"]))
+                print(f"   ⚠️  {model_id} failed ({last_error}) — trying next free model")
+                continue
+            data = candidate
+            print(f"   ✅ Generated with {model_id}")
+            break
+
+        if data is None:
+            print(f"   ❌ All free models failed. Last error: {last_error}")
             return None
-        
+
         body_html = data["choices"][0]["message"]["content"]
         
         # Clean up — remove markdown code fences if AI wrapped them
@@ -598,7 +672,7 @@ def main():
         print()
         return
     
-    print(f"\n🚀 Generating {len(topics_to_generate)} articles using DeepSeek Flash V4...\n")
+    print(f"\n🚀 Generating {len(topics_to_generate)} articles using free OpenRouter models...\n")
     
     for i, topic in enumerate(topics_to_generate):
         print(f"\n[{i+1}/{len(topics_to_generate)}] ", end="")
