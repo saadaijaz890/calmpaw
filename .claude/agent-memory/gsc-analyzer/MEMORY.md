@@ -26,3 +26,20 @@
   live, since _redirects/_headers in repo root are Netlify/Cloudflare Pages syntax but the
   site's response header self-reports as GitHub Pages — that mismatch is unconfirmed/unresolved,
   worth double-checking actual deploy target).
+
+## 2026-07-09 (later same day): CRITICAL — calmpaw was never deployed
+Discovered during 3-hourly check that `calmpaw` (this repo) is NOT the live site. The
+actual production repo is `saadaijaz890/saadaijaz890.github.io` (has the CNAME for
+www.anxietyfreepups.com, last pushed 2026-03-17). It has its own separate, human-gated
+4-phase publishing system (researcher/writer/linker/publisher agents, documented in its
+own CLAUDE.md) that a later session never knew about — instead building the whole
+ceo-agent/daily-routine/content-agent.py pipeline in this disconnected `calmpaw` repo.
+This explains the GSC sitemap showing 0 indexed far more than the URL bug alone: the
+live site's sitemap.xml was untouched, still the pre-fix version, months after my
+earlier "fix" commits here — because those commits never reached production.
+calmpaw has ~21 more blog posts, 9 more guides than live. A sync was proposed to the
+user (bulk copy calmpaw's content into saadaijaz890.github.io) but NOT executed —
+blocked by the safety classifier and awaiting explicit user confirmation, since it would
+overwrite live production content. **Do not attempt this sync autonomously.** Do not
+keep publishing new content into `calmpaw` until the user decides how to reconcile the
+two repos — it just adds to content that may never go live.
